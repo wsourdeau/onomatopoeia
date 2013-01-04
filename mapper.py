@@ -70,11 +70,13 @@ for name in textures:
     side = Image.open(os.path.join("textures", textures[name][1])).convert("RGBA")
     blocks[name] = build_block(top, side)
 
+mask = Image.open("mask.png").convert("1")
+
 map = Map(".")
 
 
 def drawNode(canvas, x, y, z, block, start):
-    canvas.paste(block, (start[0] + NODE_SIZE/2 * (z - x), start[1] + NODE_SIZE/4 * (x + z - 2 * y)), block)
+    canvas.paste(block, (start[0] + NODE_SIZE/2 * (z - x), start[1] + NODE_SIZE/4 * (x + z - 2 * y)), mask)
 
 
 def drawBlock(canvas, bx, by, bz, start):
