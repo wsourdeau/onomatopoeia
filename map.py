@@ -38,6 +38,9 @@ class Map(object):
         lighting_expired = ((ord(flags) & 4) != 0)
         generated = ((ord(flags) & 8) != 0)
 
+        if version >= 27:
+            lighting_complete = readU16(f)
+
         if version >= 22:
             content_width = readU8(f)
             params_width = readU8(f)
