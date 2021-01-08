@@ -3,6 +3,7 @@ import os.path
 import os
 import sys
 import argparse
+import time
 
 from PIL import Image, ImageDraw
 
@@ -17,7 +18,7 @@ class Mapper:
     def __init__(self, map):
         self.map = map
         self.cnt = 0
-        self.done = set()
+        self.available_tiles = set()
         self.set_up_images()
 
     def set_up_images(self):
@@ -140,7 +141,7 @@ class Mapper:
         step = 0
         last = 0
         while True:
-            print("tiling %d %d" % (x + step, z + step))
+            # print("tiling %d %d" % (x + step, z + step))
             row, col = coordsToGrid(x + step, z + step)
             y = self.chunks3(canvas, x + step, z + step, step)
             # canvas.save("step_{}.png".format(step))
@@ -150,14 +151,14 @@ class Mapper:
                 self.saveTile(tile, row // 4, col // 2)
                 del tile
                 self.cnt += 1
-            self.done.add((x + step, z + step))
+            self.available_tiles.add((x + step, z + step))
             step += 1
-            print("y is %d" % y)
+            # print("y is %d" % y)
             if y == -1:
                 break
 
-    def is_done(self, coord):
-        return coord in self.done
+    def get_available_tiles(self):
+        return self.available_tiles
 
     def get_cnt(self):
         return self.cnt
@@ -186,10 +187,19 @@ def main():
         coords.append(gridToCoords(row, col))
     coords.sort()
 
+    time_last_message = time.perf_counter()
+    last_available_tiles = set()
     for coord in coords:
-        if mapper.is_done(coord):
+        finished_tiles = mapper.get_available_tiles()
+        if coord in finished_tiles:
             continue
-        print("{0}% done".format(100.0 * mapper.get_cnt() / len(coords)))
+        time_current = time.perf_counter()
+        if time_current - time_last_message > 1.0:
+            print(
+                f"{100.0 * mapper.get_cnt() / len(coords):.2f}% done, added tiles: {finished_tiles - last_available_tiles}"
+            )
+            last_available_tiles = finished_tiles.copy()
+            time_last_message = time_current
         mapper.stupidMakeTiles(*coord)
 
     """
