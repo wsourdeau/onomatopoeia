@@ -25,11 +25,10 @@ class Mapper:
         """Generate an image for each node and load the mask"""
         self.node_images = {}
         textures = node_definitions.NODE_TEXTURES
-        for name, (texture_top, texture_side) in textures.items():
+        for node_name, (texture_top, texture_side) in textures.items():
             top = Image.open(os.path.join("textures", texture_top)).convert("RGBA")
             side = Image.open(os.path.join("textures", texture_side)).convert("RGBA")
-            node_name = str.encode(name, "ascii")
-            self.node_images[node_name] = build_block(top, side)
+            self.node_images[str.encode(node_name, "ascii")] = build_block(top, side)
         self.mask = Image.open("mask.png").convert("1")
 
     def drawNode(self, canvas, x, y, z, block, start):
@@ -50,17 +49,23 @@ class Mapper:
         for y in range(NODES_PER_BLOCK):
             for z in range(NODES_PER_BLOCK):
                 for x in range(NODES_PER_BLOCK):
-                    p = map_block.get(x, y, z)
-                    if p in self.node_images:
-                        self.drawNode(
-                            canvas,
-                            x + bx * NODES_PER_BLOCK,
-                            y + by * NODES_PER_BLOCK,
-                            z + bz * NODES_PER_BLOCK,
-                            self.node_images[p],
-                            start,
-                        )
-                        maxy = max(maxy, y + by * NODES_PER_BLOCK)
+                    node_name = map_block.get(x, y, z)
+                    if node_name in node_definitions.INVISIBLE_NODES:
+                        continue
+                    node_image = (
+                        self.node_images[node_name]
+                        if node_name in self.node_images
+                        else self.node_images[b"UNKNOWN_NODE"]
+                    )
+                    self.drawNode(
+                        canvas,
+                        x + bx * NODES_PER_BLOCK,
+                        y + by * NODES_PER_BLOCK,
+                        z + bz * NODES_PER_BLOCK,
+                        node_image,
+                        start,
+                    )
+                    maxy = max(maxy, y + by * NODES_PER_BLOCK)
         return maxy
 
     def makeChunk(self, cx, cz):

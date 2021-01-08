@@ -362,5 +362,8 @@ NODE_TEXTURES = {
     "xpanes:bar_flat": ("xpanes_bar_top.png", "xpanes_bar.png"),
     "xpanes:bar": ("xpanes_bar_top.png", "xpanes_bar.png"),
     "xpanes:pane_flat": ("xpanes_white.png", "default_glass.png"),
-    "xpanes:pane": ("xpanes_white.png", "default_glass.png")
+    "xpanes:pane": ("xpanes_white.png", "default_glass.png"),
+    "UNKNOWN_NODE": ("unknown_node.png", "unknown_node.png")
 }
+
+INVISIBLE_NODES = {b"air", b"ignore", "default:air"}
