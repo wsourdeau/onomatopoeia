@@ -2,7 +2,10 @@
 import os.path
 import os
 import sys
+import argparse
+
 from PIL import Image, ImageDraw
+
 from map import Map
 from blocks import build_block
 from constants import *
@@ -160,8 +163,20 @@ class Mapper:
         return self.cnt
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--map_folder", help="Path to the folder with the map.sqlite file", default="."
+    )
+    return parser.parse_args()
+
+
 def main():
-    map = Map(".")
+    args = parse_arguments()
+    map = Map(args.map_folder)
     mapper = Mapper(map)
     raw_coords = list(map.getCoordinatesToDraw())
     coords = []
